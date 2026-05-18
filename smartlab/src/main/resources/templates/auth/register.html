@@ -1,0 +1,18 @@
+<form th:action="@{/register}"
+      th:object="${registerDTO}"
+      method="post">
+
+    <input type="text"
+           th:field="*{username}">
+
+    <input type="email"
+           th:field="*{email}">
+
+    <input type="password"
+           th:field="*{password}">
+
+    <button type="submit">
+        Register
+    </button>
+
+</form>

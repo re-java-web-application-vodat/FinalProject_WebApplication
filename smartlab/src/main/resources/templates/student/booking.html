@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Booking</title>
+</head>
+
+<body>
+
+<h2>BOOK MENTORING SESSION</h2>
+
+<form
+        th:action="@{/student/book}"
+        th:object="${bookingDTO}"
+        method="post"
+>
+
+    <input
+            type="number"
+            th:field="*{departmentId}"
+            placeholder="Department ID"
+    >
+
+    <br><br>
+
+    <input
+            type="number"
+            th:field="*{lecturerId}"
+            placeholder="Lecturer ID"
+    >
+
+    <br><br>
+
+    <input
+            type="date"
+            th:field="*{sessionDate}"
+    >
+
+    <br><br>
+
+    <input
+            type="time"
+            th:field="*{startTime}"
+    >
+
+    <br><br>
+
+    <input
+            type="time"
+            th:field="*{endTime}"
+    >
+
+    <br><br>
+
+    <button type="submit">
+        BOOK
+    </button>
+
+</form>
+
+</body>
+</html>
