@@ -23,39 +23,52 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder){
+    public AuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder) {
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 
         provider.setUserDetailsService(userDetailsService);
-
         provider.setPasswordEncoder(passwordEncoder);
 
         return provider;
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> auth.requestMatchers(
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            AuthenticationProvider authenticationProvider
+    ) throws Exception {
+
+        http
+                .csrf(csrf -> csrf.disable())
+                .authenticationProvider(authenticationProvider)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/",
                                 "/login",
                                 "/register",
                                 "/css/**",
                                 "/js/**"
                         ).permitAll()
-                        .requestMatchers("/admin/**")
-                        .hasRole("ADMIN")
-
-                        .requestMatchers("/lecturer/**")
-                        .hasRole("LECTURER")
-
-                        .requestMatchers("/student/**")
-                        .hasRole("STUDENT")
-
-                        .anyRequest()
-                        .authenticated()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/lecturer/**").hasRole("LECTURER")
+                        .requestMatchers("/student/**").hasRole("STUDENT")
+                        .requestMatchers("/dashboard", "/profile").authenticated()
+                        .anyRequest().authenticated()
                 )
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/dashboard", true)
+                        .failureUrl("/login?error")
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .permitAll()
+                );
 
-                .formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/dashboard", true).permitAll())
-                    .logout(logout -> logout.logoutSuccessUrl("/login"));
         return http.build();
     }
 }

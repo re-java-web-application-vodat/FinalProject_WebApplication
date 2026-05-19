@@ -4,6 +4,7 @@ import com.smartlab.dto.RegisterDTO;
 import com.smartlab.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -37,7 +38,10 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public String loginPage(){
+    public String loginPage(Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            return "redirect:/dashboard";
+        }
         return "auth/login";
     }
 }
