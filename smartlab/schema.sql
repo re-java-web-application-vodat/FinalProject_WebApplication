@@ -92,10 +92,6 @@ CREATE TABLE IF NOT EXISTS payment_transactions (
     FOREIGN KEY (session_id) REFERENCES mentoring_sessions(id)
 );
 
--- ============================================================
--- BẢNG MỚI: Hỗ trợ Flow 2, 3, 4
--- ============================================================
-
 -- 9. Đánh giá năng lực sau buổi tư vấn (1-1 với mentoring_sessions)
 CREATE TABLE IF NOT EXISTS competency_assessments (
     id                  BIGINT AUTO_INCREMENT PRIMARY KEY,

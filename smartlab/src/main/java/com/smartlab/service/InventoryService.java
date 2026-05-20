@@ -13,8 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Service xử lý Flow 4: Duyệt xuất kho phiếu mượn (Admin / Lab Staff).
- *
+ * Duyệt xuất kho phiếu mượn (Admin / Lab Staff).
  * Quy trình:
  *   1. Kiểm tra tồn kho tất cả thiết bị trong phiếu trước khi xuất
  *   2. Nếu bất kỳ thiết bị nào thiếu → từ chối toàn bộ phiếu
@@ -36,15 +35,14 @@ public class InventoryService {
     }
 
     /**
-     * Xuất kho cho phiếu mượn (Flow 4).
-     *
+     * Xuất kho cho phiếu mượn
      * @param borrowSlipId ID phiếu mượn cần xuất kho
      * @throws RuntimeException nếu thiếu tồn kho hoặc trạng thái không hợp lệ
      */
     @Transactional
     public void releaseInventory(Long borrowSlipId) {
 
-        // --- Bước 1: Lấy phiếu mượn ---
+        // lấy phiếu mượn
         BorrowSlip slip = borrowSlipRepository.findById(borrowSlipId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy phiếu mượn."));
 
@@ -53,7 +51,7 @@ public class InventoryService {
             throw new RuntimeException("Chỉ có thể xuất kho phiếu đang chờ duyệt (PENDING).");
         }
 
-        // --- Bước 2: Kiểm tra tồn kho TẤT CẢ thiết bị trước khi xuất ---
+        // Kiểm tra tồn kho TẤT CẢ thiết bị trước khi xuất
         // (Fail-fast: nếu bất kỳ thiết bị nào thiếu → từ chối toàn bộ)
         for (BorrowSlipItem item : slip.getItems()) {
             Equipment equipment = equipmentRepository.findById(item.getEquipment().getId())
@@ -68,7 +66,7 @@ public class InventoryService {
             }
         }
 
-        // --- Bước 3: Trừ số lượng tồn kho ---
+        // Trừ số lượng tồn kho
         for (BorrowSlipItem item : slip.getItems()) {
             Equipment equipment = equipmentRepository.findById(item.getEquipment().getId())
                     .orElseThrow();
@@ -77,7 +75,7 @@ public class InventoryService {
             equipmentRepository.save(equipment);
         }
 
-        // --- Bước 4: Cập nhật trạng thái phiếu mượn → RELEASED ---
+        // Cập nhật trạng thái phiếu mượn → RELEASED
         slip.setStatus(BorrowSlipStatus.RELEASED);
         borrowSlipRepository.save(slip);
     }

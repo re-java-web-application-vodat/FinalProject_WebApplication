@@ -128,13 +128,8 @@ public class BookingService {
         }
     }
 
-    // ==========================================================
-    // Flow 5: Hủy lịch tư vấn (Sinh viên)
-    // ==========================================================
-
+    //Hủy lịch tư vấn (Sinh viên)
     /**
-     * Hủy buổi tư vấn đã đặt (Flow 5).
-     *
      * Quy trình:
      *   1. Kiểm tra buổi tư vấn thuộc về sinh viên
      *   2. Kiểm tra thời gian hủy theo quy định (mặc định >= 24h trước buổi hẹn)

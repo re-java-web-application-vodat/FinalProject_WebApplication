@@ -12,8 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Service xử lý Flow 3: Xem lịch sử học thuật & thiết bị mượn (Sinh viên).
- *
+ * Xem lịch sử học thuật & thiết bị mượn (Sinh viên).
  * Quy trình:
  *   1. Truy vấn danh sách buổi tư vấn tổng quan
  *   2. Truy vấn dữ liệu liên kết: Giảng viên, Đánh giá năng lực, Phiếu mượn thiết bị
@@ -29,8 +28,7 @@ public class HistoryService {
     private final BorrowSlipRepository borrowSlipRepository;
     private final UserRepository userRepository;
 
-    /**
-     * Bước 2-3 (Flow 3): Lấy danh sách buổi tư vấn của sinh viên.
+    /**lấy danh sách buổi tư vấn của sinh viên.
      * Dữ liệu đã bao gồm Giảng viên và Khoa (qua quan hệ JPA).
      */
     @Transactional(readOnly = true)
@@ -38,16 +36,14 @@ public class HistoryService {
         return sessionRepository.findByStudent_UsernameOrderByCreatedAtDesc(username);
     }
 
-    /**
-     * Lấy lịch sử mượn thiết bị đơn lẻ (do sinh viên tự tạo).
+    /**Lấy lịch sử mượn thiết bị đơn lẻ (do sinh viên tự tạo).
      */
     @Transactional(readOnly = true)
     public List<EquipmentBorrow> getBorrowHistory(String username) {
         return borrowRepository.findByStudent_UsernameOrderByCreatedAtDesc(username);
     }
 
-    /**
-     * Bước 3-4 (Flow 3): Lấy đánh giá năng lực theo buổi tư vấn.
+    /** Lấy đánh giá năng lực theo buổi tư vấn.
      * Trả về Optional vì không phải buổi nào cũng đã được đánh giá.
      */
     @Transactional(readOnly = true)
@@ -56,7 +52,7 @@ public class HistoryService {
     }
 
     /**
-     * Bước 3-4 (Flow 3): Lấy tất cả đánh giá năng lực của sinh viên.
+     * Lấy tất cả đánh giá năng lực của sinh viên.
      */
     @Transactional(readOnly = true)
     public List<CompetencyAssessment> getAssessmentsByStudent(String username) {
@@ -64,8 +60,7 @@ public class HistoryService {
         return assessmentRepository.findByStudentIdOrderByCreatedAtDesc(student.getId());
     }
 
-    /**
-     * Bước 3-4 (Flow 3): Lấy mapping sessionId → CompetencyAssessment
+    /**lấy mapping sessionId → CompetencyAssessment
      * để hiển thị đánh giá cạnh mỗi buổi tư vấn trên giao diện.
      */
     @Transactional(readOnly = true)
@@ -80,8 +75,7 @@ public class HistoryService {
                 ));
     }
 
-    /**
-     * Bước 3-4 (Flow 3): Lấy danh sách phiếu mượn thiết bị (do giảng viên tạo).
+    /**Lấy danh sách phiếu mượn thiết bị (do giảng viên tạo).
      */
     @Transactional(readOnly = true)
     public List<BorrowSlip> getBorrowSlipsByStudent(String username) {

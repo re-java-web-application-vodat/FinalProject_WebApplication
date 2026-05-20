@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Service xử lý Flow 2: Nhập đánh giá sau buổi tư vấn (Giảng viên).
+ * Nhập đánh giá sau buổi tư vấn (Giảng viên).
  *
  * Sử dụng @Transactional để đảm bảo ACID:
  *   1. Cập nhật trạng thái buổi tư vấn → COMPLETED
@@ -44,7 +44,7 @@ public class EvaluationService {
     }
 
     /**
-     * Xử lý đánh giá sau buổi tư vấn (Flow 2).
+     * Xử lý đánh giá sau buổi tư vấn.
      * Toàn bộ logic nằm trong một transaction duy nhất.
      *
      * @param sessionId ID buổi tư vấn
@@ -55,11 +55,11 @@ public class EvaluationService {
     @Transactional
     public void submitEvaluation(Long sessionId, EvaluationDTO dto, String username) {
 
-        // --- Bước 0: Xác thực giảng viên ---
+        // Xác thực giảng viên
         Lecturer lecturer = lecturerRepository.findByUser_Username(username)
                 .orElseThrow(() -> new RuntimeException("Tài khoản chưa liên kết giảng viên."));
 
-        // --- Bước 0: Xác thực buổi tư vấn ---
+        // Xác thực buổi tư vấn
         MentoringSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy buổi tư vấn."));
 
@@ -78,15 +78,12 @@ public class EvaluationService {
             throw new RuntimeException("Buổi tư vấn này đã được đánh giá trước đó.");
         }
 
-        // ============================================================
         // TRANSACTION: 3 thao tác ghi liên tiếp
-        // ============================================================
-
-        // --- Thao tác 1: Cập nhật trạng thái buổi tư vấn → COMPLETED ---
+        // Cập nhật trạng thái buổi tư vấn → COMPLETED
         session.setStatus(SessionStatus.COMPLETED);
         sessionRepository.save(session);
 
-        // --- Thao tác 2: Lưu đánh giá năng lực ---
+        // Lưu đánh giá năng lực
         CompetencyAssessment assessment = CompetencyAssessment.builder()
                 .session(session)
                 .student(session.getStudent())
@@ -100,7 +97,7 @@ public class EvaluationService {
                 .build();
         assessmentRepository.save(assessment);
 
-        // --- Thao tác 3: Lưu phiếu mượn thiết bị (nếu có) ---
+        //Lưu phiếu mượn thiết bị (nếu có)
         if (dto.getBorrowItems() != null && !dto.getBorrowItems().isEmpty()) {
 
             // Tạo phiếu mượn
