@@ -18,6 +18,7 @@
 <td th:text="${s.sessionDate}"></td><td th:text="${s.startTime + ' - ' + s.endTime}"></td>
 <td th:text="${s.department.name}"></td><td><span class="badge" th:text="${s.status}"></span></td>
 <td class="actions">
+<a th:if="${s.status.name() == 'CONFIRMED'}" th:href="@{/lecturer/sessions/{id}/evaluate(id=${s.id})}" class="btn btn-primary btn-sm">Đánh giá</a>
 <form th:if="${s.status.name() == 'CONFIRMED'}" th:action="@{/lecturer/sessions/{id}/complete(id=${s.id})}" method="post" style="display:inline">
 <button type="submit" class="btn btn-success btn-sm">Hoàn thành</button></form>
 <form th:if="${s.status.name() == 'PENDING' or s.status.name() == 'PENDING_PAYMENT'}" th:action="@{/lecturer/sessions/{id}/cancel(id=${s.id})}" method="post" style="display:inline">

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Phiếu mượn thiết bị - SmartLab')}"></head>
+<body>
+<div th:replace="~{fragments/nav :: mesh}"></div>
+<div class="app-shell">
+    <header th:replace="~{fragments/nav :: nav}"></header>
+    <main class="main-content">
+
+        <div class="page-header">
+            <h1>Quản lý phiếu mượn thiết bị</h1>
+            <p>Duyệt xuất kho cho các phiếu mượn do giảng viên tạo</p>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <div class="card">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Sinh viên</th>
+                        <th>Buổi tư vấn</th>
+                        <th>Thiết bị</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="bs : ${borrowSlips}">
+                        <td th:text="${bs.id}"></td>
+                        <td th:text="${bs.student.username}"></td>
+                        <td>
+                            <span th:text="${'#' + bs.session.id + ' — ' + bs.session.sessionDate}"></span>
+                        </td>
+                        <td>
+                            <ul style="margin:0; padding-left:1.2rem; font-size:0.85rem">
+                                <li th:each="item : ${bs.items}"
+                                    th:text="${item.equipment.name + ' × ' + item.quantity}">
+                                </li>
+                            </ul>
+                        </td>
+                        <td><span class="badge" th:text="${bs.status}"></span></td>
+                        <td th:text="${#temporals.format(bs.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td class="actions">
+                            <form th:if="${bs.status.name() == 'PENDING'}"
+                                  th:action="@{/admin/borrow-slips/{id}/release(id=${bs.id})}"
+                                  method="post" style="display:inline"
+                                  onsubmit="return confirm('Xác nhận xuất kho cho phiếu mượn này?')">
+                                <button type="submit" class="btn btn-primary btn-sm">Xuất kho</button>
+                            </form>
+                            <span th:if="${bs.status.name() == 'RELEASED'}" style="color:var(--success)">
+                                ✓ Đã xuất
+                            </span>
+                            <span th:if="${bs.status.name() == 'RETURNED'}" style="color:var(--text-muted)">
+                                ↩ Đã trả
+                            </span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(borrowSlips)}" class="empty-row">
+                        <td colspan="7">Chưa có phiếu mượn nào</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+</body>
+</html>

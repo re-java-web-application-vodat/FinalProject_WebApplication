@@ -42,41 +42,89 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void seedUsers() {
-        if (userRepository.count() > 0) {
-            return;
+        java.util.List<Department> departments = departmentRepository.findAll();
+        Department cntt = departments.size() > 0 ? departments.get(0) : null;
+        Department qtkd = departments.size() > 1 ? departments.get(1) : null;
+        Department ai   = departments.size() > 3 ? departments.get(3) : null;
+
+        // --- Tài khoản Admin ---
+        if (!userRepository.existsByUsername("admin")) {
+            userRepository.save(User.builder()
+                    .username("admin")
+                    .email("admin@smartlab.edu")
+                    .password(passwordEncoder.encode("admin123"))
+                    .role(Role.ADMIN)
+                    .enable(true)
+                    .build());
         }
 
-        Department cntt = departmentRepository.findAll().get(0);
+        // --- Tài khoản Sinh viên ---
+        if (!userRepository.existsByUsername("student")) {
+            userRepository.save(User.builder()
+                    .username("student")
+                    .email("student@smartlab.edu")
+                    .password(passwordEncoder.encode("student123"))
+                    .role(Role.STUDENT)
+                    .enable(true)
+                    .build());
+        }
 
-        userRepository.save(User.builder()
-                .username("admin")
-                .email("admin@smartlab.edu")
-                .password(passwordEncoder.encode("admin123"))
-                .role(Role.ADMIN)
-                .enable(true)
-                .build());
+        // --- Giảng viên 1: Khoa CNTT ---
+        if (!userRepository.existsByUsername("lecturer")) {
+            User lecturerUser = userRepository.save(User.builder()
+                    .username("lecturer")
+                    .email("lecturer@smartlab.edu")
+                    .password(passwordEncoder.encode("lecturer123"))
+                    .role(Role.LECTURER)
+                    .enable(true)
+                    .build());
 
-        userRepository.save(User.builder()
-                .username("student")
-                .email("student@smartlab.edu")
-                .password(passwordEncoder.encode("student123"))
-                .role(Role.STUDENT)
-                .enable(true)
-                .build());
+            if (cntt != null) {
+                lecturerRepository.save(Lecturer.builder()
+                        .user(lecturerUser)
+                        .department(cntt)
+                        .specialization("Lập trình Web")
+                        .build());
+            }
+        }
 
-        User lecturerUser = userRepository.save(User.builder()
-                .username("lecturer")
-                .email("lecturer@smartlab.edu")
-                .password(passwordEncoder.encode("lecturer123"))
-                .role(Role.LECTURER)
-                .enable(true)
-                .build());
+        // --- Giảng viên 2: Khoa QTKD ---
+        if (!userRepository.existsByUsername("lecturer2")) {
+            User lecturer2User = userRepository.save(User.builder()
+                    .username("lecturer2")
+                    .email("lecturer2@smartlab.edu")
+                    .password(passwordEncoder.encode("lecturer123"))
+                    .role(Role.LECTURER)
+                    .enable(true)
+                    .build());
 
-        lecturerRepository.save(Lecturer.builder()
-                .user(lecturerUser)
-                .department(cntt)
-                .specialization("Lập trình Web")
-                .build());
+            if (qtkd != null) {
+                lecturerRepository.save(Lecturer.builder()
+                        .user(lecturer2User)
+                        .department(qtkd)
+                        .specialization("Marketing số")
+                        .build());
+            }
+        }
+
+        // --- Giảng viên 3: Khoa Trí tuệ nhân tạo ---
+        if (!userRepository.existsByUsername("lecturer3")) {
+            User lecturer3User = userRepository.save(User.builder()
+                    .username("lecturer3")
+                    .email("lecturer3@smartlab.edu")
+                    .password(passwordEncoder.encode("lecturer123"))
+                    .role(Role.LECTURER)
+                    .enable(true)
+                    .build());
+
+            if (ai != null) {
+                lecturerRepository.save(Lecturer.builder()
+                        .user(lecturer3User)
+                        .department(ai)
+                        .specialization("Machine Learning")
+                        .build());
+            }
+        }
     }
 
     private void seedEquipment() {

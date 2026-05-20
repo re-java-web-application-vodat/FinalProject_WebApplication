@@ -7,23 +7,121 @@
 <header th:replace="~{fragments/nav :: nav}"></header>
 <main class="main-content">
 
-<div class="page-header"><h1>Lịch sử sinh viên</h1><p>Buổi mentoring và phiếu mượn thiết bị</p></div>
+<div class="page-header"><h1>Lịch sử học thuật</h1><p>Buổi tư vấn, đánh giá năng lực và phiếu mượn thiết bị</p></div>
 <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
 <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
-<div class="card"><h3 class="card-title">Buổi mentoring</h3>
+
+<!-- ============================================================ -->
+<!-- BẢNG 1: Danh sách buổi tư vấn + Đánh giá năng lực (Flow 3)  -->
+<!-- ============================================================ -->
+<div class="card"><h3 class="card-title">Buổi tư vấn học thuật</h3>
 <div class="table-wrap"><table>
-<thead><tr><th>ID</th><th>Ngày</th><th>Giờ</th><th>Giảng viên</th><th>Khoa</th><th>Trạng thái</th><th></th></tr></thead>
+<thead><tr>
+    <th>ID</th><th>Ngày</th><th>Giờ</th><th>Giảng viên</th><th>Khoa</th>
+    <th>Trạng thái</th><th>Điểm NL</th><th>Hành động</th>
+</tr></thead>
 <tbody>
 <tr th:each="s : ${sessions}">
-<td th:text="${s.id}"></td><td th:text="${s.sessionDate}"></td>
-<td th:text="${s.startTime + ' - ' + s.endTime}"></td>
-<td th:text="${s.lecturer.user.username}"></td><td th:text="${s.department.name}"></td>
-<td><span class="badge" th:text="${s.status}"></span></td>
-<td><a th:if="${s.status.name() == 'PENDING'}" th:href="@{/student/payment/{id}(id=${s.id})}" class="btn btn-primary btn-sm">Thanh toán</a></td>
+    <td th:text="${s.id}"></td>
+    <td th:text="${s.sessionDate}"></td>
+    <td th:text="${s.startTime + ' - ' + s.endTime}"></td>
+    <td th:text="${s.lecturer.user.username}"></td>
+    <td th:text="${s.department.name}"></td>
+    <td><span class="badge" th:text="${s.status}"></span></td>
+
+    <!-- Điểm năng lực từ đánh giá (Flow 3 - dữ liệu liên kết) -->
+    <td>
+        <span th:if="${assessmentMap.containsKey(s.id)}"
+              th:text="${assessmentMap.get(s.id).score != null ? assessmentMap.get(s.id).score + '/10' : '—'}"
+              style="font-weight:600; color:var(--accent)"></span>
+        <span th:unless="${assessmentMap.containsKey(s.id)}" style="color:var(--text-muted)">—</span>
+    </td>
+
+    <td class="actions">
+        <!-- Nút thanh toán (PENDING) -->
+        <a th:if="${s.status.name() == 'PENDING'}"
+           th:href="@{/student/payment/{id}(id=${s.id})}"
+           class="btn btn-primary btn-sm">Thanh toán</a>
+
+        <!-- Nút hủy lịch (Flow 5) - PENDING hoặc PENDING_PAYMENT -->
+        <form th:if="${s.status.name() == 'PENDING' or s.status.name() == 'PENDING_PAYMENT'}"
+              th:action="@{/student/book/{id}/cancel(id=${s.id})}"
+              method="post" style="display:inline"
+              onsubmit="return confirm('Bạn có chắc muốn hủy buổi tư vấn này?')">
+            <button type="submit" class="btn btn-danger btn-sm">Hủy lịch</button>
+        </form>
+
+        <!-- Nút xem đánh giá chi tiết (COMPLETED + có đánh giá) -->
+        <button th:if="${s.status.name() == 'COMPLETED' and assessmentMap.containsKey(s.id)}"
+                type="button" class="btn btn-secondary btn-sm"
+                th:onclick="'toggleAssessment(' + ${s.id} + ')'">
+            Chi tiết
+        </button>
+    </td>
 </tr>
-<tr th:if="${#lists.isEmpty(sessions)}" class="empty-row"><td colspan="7">Chưa có buổi mentoring</td></tr>
+
+<!-- Dòng chi tiết đánh giá (ẩn/hiện bằng JavaScript) -->
+<tr th:each="s : ${sessions}"
+    th:if="${assessmentMap.containsKey(s.id)}"
+    th:id="'assessment-' + ${s.id}"
+    style="display:none" class="assessment-detail-row">
+    <td colspan="8" style="padding:1rem 1.5rem; background:var(--surface-2)">
+        <div th:with="a=${assessmentMap.get(s.id)}">
+            <strong>📋 Nội dung đánh giá:</strong>
+            <p th:text="${a.assessmentContent}" style="margin:0.3rem 0 0.8rem 0"></p>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1rem">
+                <div>
+                    <strong style="color:var(--success)">✅ Điểm mạnh:</strong>
+                    <p th:text="${a.strengths ?: 'Chưa có'}" style="margin:0.2rem 0"></p>
+                </div>
+                <div>
+                    <strong style="color:var(--danger)">⚠️ Cần cải thiện:</strong>
+                    <p th:text="${a.weaknesses ?: 'Chưa có'}" style="margin:0.2rem 0"></p>
+                </div>
+            </div>
+
+            <div style="margin-top:0.8rem" th:if="${a.recommendations != null}">
+                <strong>💡 Đề xuất:</strong>
+                <p th:text="${a.recommendations}" style="margin:0.2rem 0"></p>
+            </div>
+        </div>
+    </td>
+</tr>
+
+<tr th:if="${#lists.isEmpty(sessions)}" class="empty-row"><td colspan="8">Chưa có buổi tư vấn</td></tr>
 </tbody></table></div></div>
-<div class="card"><h3 class="card-title">Phiếu mượn thiết bị</h3>
+
+<!-- ============================================================ -->
+<!-- BẢNG 2: Phiếu mượn thiết bị - do giảng viên tạo (Flow 3)    -->
+<!-- ============================================================ -->
+<div class="card"><h3 class="card-title">Phiếu mượn thiết bị (từ buổi tư vấn)</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+    <th>ID</th><th>Buổi TV</th><th>Thiết bị</th><th>Ghi chú</th>
+    <th>Trạng thái</th><th>Ngày tạo</th>
+</tr></thead>
+<tbody>
+<tr th:each="bs : ${borrowSlips}">
+    <td th:text="${bs.id}"></td>
+    <td th:text="${'#' + bs.session.id + ' — ' + bs.session.sessionDate}"></td>
+    <td>
+        <ul style="margin:0; padding-left:1.2rem; font-size:0.85rem">
+            <li th:each="item : ${bs.items}"
+                th:text="${item.equipment.name + ' × ' + item.quantity}"></li>
+        </ul>
+    </td>
+    <td th:text="${bs.note ?: '—'}"></td>
+    <td><span class="badge" th:text="${bs.status}"></span></td>
+    <td th:text="${#temporals.format(bs.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+</tr>
+<tr th:if="${#lists.isEmpty(borrowSlips)}" class="empty-row"><td colspan="6">Chưa có phiếu mượn</td></tr>
+</tbody></table></div></div>
+
+<!-- ============================================================ -->
+<!-- BẢNG 3: Phiếu mượn đơn lẻ (do sinh viên tự tạo)             -->
+<!-- ============================================================ -->
+<div class="card"><h3 class="card-title">Mượn thiết bị trực tiếp</h3>
 <div class="table-wrap"><table>
 <thead><tr><th>ID</th><th>Thiết bị</th><th>SL</th><th>Ngày mượn</th><th>Hẹn trả</th><th>Trạng thái</th></tr></thead>
 <tbody>
@@ -37,5 +135,14 @@
 
 </main>
 </div>
+
+<script>
+    function toggleAssessment(sessionId) {
+        const row = document.getElementById('assessment-' + sessionId);
+        if (row) {
+            row.style.display = row.style.display === 'none' ? '' : 'none';
+        }
+    }
+</script>
 </body>
 </html>

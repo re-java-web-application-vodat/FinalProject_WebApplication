@@ -11,8 +11,11 @@ import com.smartlab.repository.LecturerRepository;
 import com.smartlab.repository.MentoringSessionRepository;
 import com.smartlab.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Duration;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,6 +27,10 @@ import java.util.List;
 public class BookingService {
 
     private static final int MIN_DURATION_MINUTES = 30;
+
+    /** Số giờ tối thiểu trước buổi hẹn để được phép hủy (mặc định 24h) */
+    @Value("${smartlab.cancel-before-hours:24}")
+    private int cancelBeforeHours;
 
     private final MentoringSessionRepository sessionRepository;
     private final UserRepository userRepository;
@@ -119,5 +126,63 @@ public class BookingService {
         if (endDateTime.isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("Khung giờ kết thúc đã qua, vui lòng chọn giờ khác.");
         }
+    }
+
+    // ==========================================================
+    // Flow 5: Hủy lịch tư vấn (Sinh viên)
+    // ==========================================================
+
+    /**
+     * Hủy buổi tư vấn đã đặt (Flow 5).
+     *
+     * Quy trình:
+     *   1. Kiểm tra buổi tư vấn thuộc về sinh viên
+     *   2. Kiểm tra thời gian hủy theo quy định (mặc định >= 24h trước buổi hẹn)
+     *   3. Cập nhật trạng thái → CANCELLED
+     *   4. Khung giờ tự động được giải phóng (do overlap query loại trừ CANCELLED)
+     *
+     * @param sessionId ID buổi tư vấn cần hủy
+     * @param username  Tên đăng nhập của sinh viên
+     * @throws IllegalArgumentException nếu vi phạm quy định hủy
+     */
+    @Transactional
+    public void cancelBooking(Long sessionId, String username) {
+
+        // Bước 1: Tìm buổi tư vấn
+        MentoringSession session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy buổi tư vấn."));
+
+        // Kiểm tra quyền: buổi tư vấn phải thuộc về sinh viên hiện tại
+        User student = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản sinh viên."));
+
+        if (!session.getStudent().getId().equals(student.getId())) {
+            throw new IllegalArgumentException("Bạn không có quyền hủy buổi tư vấn này.");
+        }
+
+        // Kiểm tra trạng thái: chỉ hủy buổi PENDING hoặc PENDING_PAYMENT
+        if (session.getStatus() != SessionStatus.PENDING
+                && session.getStatus() != SessionStatus.PENDING_PAYMENT) {
+            throw new IllegalArgumentException(
+                    "Chỉ có thể hủy buổi tư vấn đang ở trạng thái chờ xử lý.");
+        }
+
+        // Bước 2: Kiểm tra quy định thời gian hủy
+        LocalDateTime sessionStart = LocalDateTime.of(session.getSessionDate(), session.getStartTime());
+        LocalDateTime now = LocalDateTime.now();
+        long hoursUntilSession = Duration.between(now, sessionStart).toHours();
+
+        if (hoursUntilSession < cancelBeforeHours) {
+            throw new IllegalArgumentException(
+                    "Không thể hủy lịch trong vòng " + cancelBeforeHours +
+                    " giờ trước buổi hẹn. Vui lòng liên hệ giảng viên.");
+        }
+
+        // Bước 3: Cập nhật trạng thái → CANCELLED
+        session.setStatus(SessionStatus.CANCELLED);
+        sessionRepository.save(session);
+
+        // Bước 4: Khung giờ tự động được giải phóng
+        // (các query kiểm tra overlap đã loại trừ trạng thái CANCELLED)
     }
 }

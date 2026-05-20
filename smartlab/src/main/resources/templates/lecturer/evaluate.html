@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Đánh giá buổi tư vấn - SmartLab')}"></head>
+<body>
+<div th:replace="~{fragments/nav :: mesh}"></div>
+<div class="app-shell">
+    <header th:replace="~{fragments/nav :: nav}"></header>
+    <main class="main-content">
+
+        <div class="page-header">
+            <h1>Đánh giá buổi tư vấn</h1>
+            <p>Nhập kết quả tư vấn, đánh giá năng lực và danh sách thiết bị mượn</p>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <!-- Thông tin buổi tư vấn -->
+        <div class="card" style="margin-bottom:1.5rem">
+            <h3 class="card-title">Thông tin buổi tư vấn</h3>
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>Sinh viên</label>
+                    <input type="text" th:value="${session.student.username}" readonly class="readonly-input">
+                </div>
+                <div class="input-group">
+                    <label>Khoa</label>
+                    <input type="text" th:value="${session.department.name}" readonly class="readonly-input">
+                </div>
+                <div class="input-group">
+                    <label>Ngày</label>
+                    <input type="text" th:value="${session.sessionDate}" readonly class="readonly-input">
+                </div>
+                <div class="input-group">
+                    <label>Giờ</label>
+                    <input type="text" th:value="${session.startTime + ' - ' + session.endTime}" readonly class="readonly-input">
+                </div>
+            </div>
+        </div>
+
+        <!-- Form đánh giá -->
+        <form th:action="@{/lecturer/sessions/{id}/evaluate(id=${session.id})}" method="post">
+
+            <!-- Phần 1: Đánh giá năng lực -->
+            <div class="card" style="margin-bottom:1.5rem">
+                <h3 class="card-title">Đánh giá năng lực sinh viên</h3>
+                <div class="form-grid">
+                    <div class="input-group" style="grid-column: 1 / -1">
+                        <label for="assessmentContent">Nội dung đánh giá chính <span style="color:var(--danger)">*</span></label>
+                        <textarea id="assessmentContent" name="assessmentContent" rows="4" required
+                                  placeholder="Mô tả tổng quan kết quả buổi tư vấn..."></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="score">Điểm năng lực (0 - 10)</label>
+                        <input type="number" id="score" name="score" min="0" max="10" step="0.5"
+                               placeholder="VD: 7.5">
+                    </div>
+                    <div class="input-group">
+                        <label for="strengths">Điểm mạnh</label>
+                        <textarea id="strengths" name="strengths" rows="3"
+                                  placeholder="Liệt kê điểm mạnh của sinh viên..."></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="weaknesses">Điểm cần cải thiện</label>
+                        <textarea id="weaknesses" name="weaknesses" rows="3"
+                                  placeholder="Liệt kê các điểm cần cải thiện..."></textarea>
+                    </div>
+                    <div class="input-group" style="grid-column: 1 / -1">
+                        <label for="recommendations">Đề xuất / Khuyến nghị</label>
+                        <textarea id="recommendations" name="recommendations" rows="3"
+                                  placeholder="Đề xuất hướng phát triển, tài liệu tham khảo..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phần 2: Phiếu mượn thiết bị -->
+            <div class="card" style="margin-bottom:1.5rem">
+                <h3 class="card-title">Thiết bị / Tài liệu cho mượn (không bắt buộc)</h3>
+
+                <div class="input-group">
+                    <label for="note">Ghi chú phiếu mượn</label>
+                    <input type="text" id="note" name="note"
+                           placeholder="VD: Mượn phục vụ bài tập lớn môn Lập trình Web">
+                </div>
+
+                <div id="borrow-items-container">
+                    <!-- Dòng thiết bị mẫu -->
+                    <div class="borrow-item-row" style="display:flex; gap:1rem; align-items:end; margin-bottom:0.75rem">
+                        <div class="input-group" style="flex:2">
+                            <label>Thiết bị</label>
+                            <select name="borrowItems[0].equipmentId">
+                                <option value="">-- Chọn thiết bị --</option>
+                                <option th:each="eq : ${equipments}"
+                                        th:value="${eq.id}"
+                                        th:text="${eq.name + ' (Còn: ' + eq.availableQuantity + ')'}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="input-group" style="flex:1">
+                            <label>Số lượng</label>
+                            <input type="number" name="borrowItems[0].quantity" min="1" placeholder="1">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addBorrowItem()"
+                        style="margin-top:0.5rem">
+                    + Thêm thiết bị
+                </button>
+            </div>
+
+            <!-- Nút submit -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Lưu đánh giá</button>
+                <a href="/lecturer/sessions" class="btn btn-secondary">Quay lại</a>
+            </div>
+        </form>
+
+    </main>
+</div>
+
+<script>
+    let borrowItemIndex = 1;
+
+    function addBorrowItem() {
+        const container = document.getElementById('borrow-items-container');
+        const equipmentOptions = container.querySelector('select').innerHTML;
+
+        const row = document.createElement('div');
+        row.className = 'borrow-item-row';
+        row.style.cssText = 'display:flex; gap:1rem; align-items:end; margin-bottom:0.75rem';
+
+        row.innerHTML = `
+            <div class="input-group" style="flex:2">
+                <label>Thiết bị</label>
+                <select name="borrowItems[${borrowItemIndex}].equipmentId">
+                    ${equipmentOptions}
+                </select>
+            </div>
+            <div class="input-group" style="flex:1">
+                <label>Số lượng</label>
+                <input type="number" name="borrowItems[${borrowItemIndex}].quantity" min="1" placeholder="1">
+            </div>
+            <button type="button" class="btn btn-danger btn-sm"
+                    onclick="this.parentElement.remove()" style="margin-bottom:0.5rem">Xóa</button>
+        `;
+
+        container.appendChild(row);
+        borrowItemIndex++;
+    }
+</script>
+</body>
+</html>
