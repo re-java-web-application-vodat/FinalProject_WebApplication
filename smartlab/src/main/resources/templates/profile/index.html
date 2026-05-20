@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Hồ sơ - SmartLab')}"></head>
+<body>
+<div th:replace="~{fragments/nav :: mesh}"></div>
+<div class="app-shell">
+<header th:replace="~{fragments/nav :: nav}"></header>
+<main class="main-content">
+
+<div class="page-header"><h1>Hồ sơ cá nhân</h1><p>Cập nhật thông tin liên hệ của bạn</p></div>
+<div class="card"><form th:action="@{/profile}" th:object="${profile}" method="post">
+<input type="hidden" th:field="*{id}">
+<div class="form-grid">
+<div class="input-group"><label>Họ và tên</label><input type="text" th:field="*{fullname}"></div>
+<div class="input-group"><label>Số điện thoại</label><input type="text" th:field="*{phone}"></div>
+<div class="input-group"><label>Địa chỉ</label><input type="text" th:field="*{address}"></div>
+<div class="input-group"><label>Avatar URL</label><input type="text" th:field="*{avatar}"></div>
+</div>
+<div class="form-actions"><button type="submit" class="btn btn-primary">Lưu hồ sơ</button></div>
+</form></div>
+
+</main>
+</div>
+</body>
+</html>

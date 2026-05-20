@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Phiếu mượn - SmartLab')}"></head>
+<body>
+<div th:replace="~{fragments/nav :: mesh}"></div>
+<div class="app-shell">
+<header th:replace="~{fragments/nav :: nav}"></header>
+<main class="main-content">
+
+<div class="page-header"><h1>Quản lý phiếu mượn</h1><p>Duyệt xuất kho và nhận trả thiết bị</p></div>
+<div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+<div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+<div class="card"><div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Sinh viên</th><th>Thiết bị</th><th>SL</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+<tbody>
+<tr th:each="b : ${borrows}">
+<td th:text="${b.id}"></td><td th:text="${b.student.username}"></td>
+<td th:text="${b.equipment.name}"></td><td th:text="${b.quantity}"></td>
+<td><span class="badge" th:text="${b.status}"></span></td>
+<td class="actions">
+<form th:if="${b.status.name() == 'PENDING'}" th:action="@{/admin/borrows/{id}/export(id=${b.id})}" method="post" style="display:inline">
+<button class="btn btn-primary btn-sm">Xuất kho</button></form>
+<form th:if="${b.status.name() == 'EXPORTED'}" th:action="@{/admin/borrows/{id}/return(id=${b.id})}" method="post" style="display:inline">
+<button class="btn btn-success btn-sm">Đã trả</button></form>
+</td></tr>
+</tbody></table></div></div>
+
+</main>
+</div>
+</body>
+</html>

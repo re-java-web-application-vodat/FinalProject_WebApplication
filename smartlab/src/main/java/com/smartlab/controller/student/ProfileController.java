@@ -20,20 +20,15 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @GetMapping
-    public String profilePage(Principal principal, Model model){
-
+    public String profilePage(Principal principal, Model model) {
         UserProfile profile = profileService.getProfile(principal.getName());
-
         model.addAttribute("profile", profile);
-
-            return "profile/index";
-        }
+        return "profile/index";
+    }
 
     @PostMapping
-    public String updateProfile(@ModelAttribute UserProfile profile, Principal principal){
-
+    public String updateProfile(@ModelAttribute UserProfile profile, Principal principal) {
         profileService.updateProfile(principal.getName(), profile);
-
-            return "redirect:/profile";
+        return "redirect:/profile";
     }
 }

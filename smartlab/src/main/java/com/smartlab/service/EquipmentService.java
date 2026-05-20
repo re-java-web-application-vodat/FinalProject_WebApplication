@@ -19,7 +19,9 @@ public class EquipmentService {
     }
 
     public void create(Equipment equipment){
-
+        if (equipment.getAvailableQuantity() == null) {
+            equipment.setAvailableQuantity(equipment.getQuantity());
+        }
         repository.save(equipment);
     }
 

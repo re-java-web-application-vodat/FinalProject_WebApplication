@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Sửa thiết bị')}"></head>
+<body>
+<div th:replace="~{fragments/nav :: mesh}"></div>
+<div class="app-shell">
+<header th:replace="~{fragments/nav :: nav}"></header>
+<main class="main-content">
+
+<div class="page-header"><h1>Sửa thiết bị</h1></div>
+<div class="card"><form th:action="@{/admin/equipments/edit}" th:object="${equipment}" method="post">
+<input type="hidden" th:field="*{id}">
+<div class="input-group"><label>Tên</label><input th:field="*{name}" required></div>
+<div class="input-group"><label>Mô tả</label><textarea th:field="*{description}" rows="3"></textarea></div>
+<div class="form-grid">
+<div class="input-group"><label>Số lượng</label><input type="number" th:field="*{quantity}" min="0" required></div>
+<div class="input-group"><label>Còn khả dụng</label><input type="number" th:field="*{availableQuantity}" min="0"></div>
+</div>
+<div class="form-actions">
+<button type="submit" class="btn btn-primary">Cập nhật</button>
+<a href="/admin/equipments" class="btn btn-secondary">Hủy</a>
+</div>
+</form></div>
+
+</main>
+</div>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Lịch sử - SmartLab')}"></head>
+<body>
+<div th:replace="~{fragments/nav :: mesh}"></div>
+<div class="app-shell">
+<header th:replace="~{fragments/nav :: nav}"></header>
+<main class="main-content">
+
+<div class="page-header"><h1>Lịch sử sinh viên</h1><p>Buổi mentoring và phiếu mượn thiết bị</p></div>
+<div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+<div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+<div class="card"><h3 class="card-title">Buổi mentoring</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Ngày</th><th>Giờ</th><th>Giảng viên</th><th>Khoa</th><th>Trạng thái</th><th></th></tr></thead>
+<tbody>
+<tr th:each="s : ${sessions}">
+<td th:text="${s.id}"></td><td th:text="${s.sessionDate}"></td>
+<td th:text="${s.startTime + ' - ' + s.endTime}"></td>
+<td th:text="${s.lecturer.user.username}"></td><td th:text="${s.department.name}"></td>
+<td><span class="badge" th:text="${s.status}"></span></td>
+<td><a th:if="${s.status.name() == 'PENDING'}" th:href="@{/student/payment/{id}(id=${s.id})}" class="btn btn-primary btn-sm">Thanh toán</a></td>
+</tr>
+<tr th:if="${#lists.isEmpty(sessions)}" class="empty-row"><td colspan="7">Chưa có buổi mentoring</td></tr>
+</tbody></table></div></div>
+<div class="card"><h3 class="card-title">Phiếu mượn thiết bị</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Thiết bị</th><th>SL</th><th>Ngày mượn</th><th>Hẹn trả</th><th>Trạng thái</th></tr></thead>
+<tbody>
+<tr th:each="b : ${borrows}">
+<td th:text="${b.id}"></td><td th:text="${b.equipment.name}"></td><td th:text="${b.quantity}"></td>
+<td th:text="${b.borrowDate}"></td><td th:text="${b.expectedReturnDate}"></td>
+<td><span class="badge" th:text="${b.status}"></span></td>
+</tr>
+<tr th:if="${#lists.isEmpty(borrows)}" class="empty-row"><td colspan="6">Chưa có phiếu mượn</td></tr>
+</tbody></table></div></div>
+
+</main>
+</div>
+</body>
+</html>

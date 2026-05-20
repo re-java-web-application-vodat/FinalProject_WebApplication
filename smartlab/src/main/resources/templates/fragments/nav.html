@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<header th:fragment="nav" class="navbar">
+    <div class="navbar-inner">
+        <a href="/dashboard" class="brand">
+            <span class="brand-logo">S</span>
+            <span>SmartLab</span>
+        </a>
+        <nav class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a th:if="${currentRole == 'STUDENT'}" href="/student/book">Đặt lịch</a>
+            <a th:if="${currentRole == 'STUDENT'}" href="/student/history">Lịch sử</a>
+            <a th:if="${currentRole == 'STUDENT'}" href="/student/borrow">Mượn TB</a>
+            <a th:if="${currentRole == 'LECTURER'}" href="/lecturer/sessions">Lịch dạy</a>
+            <a th:if="${currentRole == 'ADMIN'}" href="/admin/equipments">Thiết bị</a>
+            <a th:if="${currentRole == 'ADMIN'}" href="/admin/borrows">Phiếu mượn</a>
+            <a href="/profile">Hồ sơ</a>
+        </nav>
+        <span class="nav-actions">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-secondary btn-sm">Đăng xuất</button>
+            </form>
+        </span>
+    </div>
+</header>
+
+<div th:fragment="mesh" class="mesh-bg">
+    <span class="orb orb-1"></span>
+    <span class="orb orb-2"></span>
+</div>
+</body>
+</html>

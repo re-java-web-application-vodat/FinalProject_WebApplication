@@ -1,393 +1,98 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.w3.org/1999/xhtml">
-
-<head>
-
-    <title>Booking Session - SmartLab</title>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <link rel="preconnect"
-          href="https://fonts.googleapis.com">
-
-    <link rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet">
-
-    <style>
-
-        *{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body{
-
-            font-family: 'Poppins', sans-serif;
-
-            min-height: 100vh;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            background:
-                    linear-gradient(
-                            135deg,
-                            #0f172a,
-                            #1e293b,
-                            #2563eb
-                    );
-
-            overflow: hidden;
-        }
-
-        .background-circle{
-
-            position: absolute;
-
-            width: 420px;
-            height: 420px;
-
-            border-radius: 50%;
-
-            background: rgba(255,255,255,0.08);
-
-            filter: blur(100px);
-        }
-
-        .circle-1{
-            top: -120px;
-            left: -120px;
-        }
-
-        .circle-2{
-            bottom: -120px;
-            right: -120px;
-        }
-
-        .booking-container{
-
-            position: relative;
-
-            z-index: 2;
-
-            width: 90%;
-            max-width: 500px;
-
-            padding: 50px 40px;
-
-            border-radius: 30px;
-
-            background: rgba(255,255,255,0.12);
-
-            backdrop-filter: blur(20px);
-
-            border: 1px solid rgba(255,255,255,0.15);
-
-            box-shadow:
-                    0 20px 50px rgba(0,0,0,0.4);
-
-            animation: fadeIn 1s ease;
-        }
-
-        .logo{
-
-            width: 85px;
-            height: 85px;
-
-            margin: auto auto 25px;
-
-            border-radius: 22px;
-
-            background:
-                    linear-gradient(
-                            135deg,
-                            #3b82f6,
-                            #60a5fa
-                    );
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            color: white;
-
-            font-size: 36px;
-
-            font-weight: bold;
-
-            box-shadow:
-                    0 10px 30px rgba(59,130,246,0.5);
-        }
-
-        h2{
-
-            text-align: center;
-
-            color: white;
-
-            font-size: 32px;
-
-            margin-bottom: 10px;
-        }
-
-        .subtitle{
-
-            text-align: center;
-
-            color: rgba(255,255,255,0.75);
-
-            font-size: 15px;
-
-            line-height: 1.7;
-
-            margin-bottom: 35px;
-        }
-
-        .input-group{
-
-            margin-bottom: 22px;
-        }
-
-        .input-group label{
-
-            display: block;
-
-            margin-bottom: 8px;
-
-            color: rgba(255,255,255,0.85);
-
-            font-size: 14px;
-
-            font-weight: 500;
-        }
-
-        .input-group input{
-
-            width: 100%;
-
-            padding: 15px 18px;
-
-            border-radius: 14px;
-
-            border: 1px solid transparent;
-
-            outline: none;
-
-            background: rgba(255,255,255,0.12);
-
-            color: white;
-
-            font-size: 15px;
-
-            transition: 0.3s;
-        }
-
-        .input-group input::placeholder{
-
-            color: rgba(255,255,255,0.55);
-        }
-
-        .input-group input:focus{
-
-            border-color: #60a5fa;
-
-            background: rgba(255,255,255,0.18);
-
-            box-shadow:
-                    0 0 15px rgba(96,165,250,0.35);
-        }
-
-        .book-btn{
-
-            width: 100%;
-
-            padding: 15px;
-
-            border: none;
-
-            border-radius: 14px;
-
-            background:
-                    linear-gradient(
-                            135deg,
-                            #3b82f6,
-                            #60a5fa
-                    );
-
-            color: white;
-
-            font-size: 16px;
-
-            font-weight: 600;
-
-            cursor: pointer;
-
-            transition: 0.3s;
-
-            margin-top: 10px;
-
-            box-shadow:
-                    0 10px 25px rgba(59,130,246,0.35);
-        }
-
-        .book-btn:hover{
-
-            transform: translateY(-4px);
-
-            opacity: 0.92;
-        }
-
-        .student-link{
-
-            margin-top: 25px;
-
-            text-align: center;
-        }
-
-        .student-link a{
-
-            color: #93c5fd;
-
-            text-decoration: none;
-
-            font-weight: 600;
-
-            transition: 0.3s;
-        }
-
-        .student-link a:hover{
-
-            text-decoration: underline;
-        }
-
-        @keyframes fadeIn {
-
-            from{
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to{
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @media(max-width:768px){
-
-            .booking-container{
-                padding: 40px 25px;
-            }
-
-            h2{
-                font-size: 28px;
-            }
-        }
-
-    </style>
-
-</head>
-
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Đặt lịch - SmartLab')}"></head>
 <body>
+<div th:replace="~{fragments/nav :: mesh}"></div>
+<div class="app-shell">
+    <header th:replace="~{fragments/nav :: nav}"></header>
+    <main class="main-content">
 
-<div class="background-circle circle-1"></div>
-<div class="background-circle circle-2"></div>
-
-<div class="booking-container">
-
-    <div class="logo">
-        S
-    </div>
-
-    <h2>Book Mentoring Session</h2>
-
-    <p class="subtitle">
-
-        Schedule an academic mentoring session
-        with lecturers and manage your learning journey.
-
-    </p>
-
-    <form th:action="@{/student/book}"
-          th:object="${bookingDTO}"
-          method="post">
-
-        <div class="input-group">
-
-            <label>Department ID</label>
-
-            <input type="number"
-                   th:field="*{departmentId}"
-                   placeholder="Enter department ID">
-
+        <div class="page-header">
+            <h1>Đặt lịch mentoring</h1>
+            <p>Chọn khoa, giảng viên và khung giờ phù hợp</p>
         </div>
 
-        <div class="input-group">
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
-            <label>Lecturer ID</label>
-
-            <input type="number"
-                   th:field="*{lecturerId}"
-                   placeholder="Enter lecturer ID">
-
+        <div class="card">
+            <form th:action="@{/student/book}" th:object="${bookingDTO}" method="post">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label for="departmentId">Khoa / Ngành</label>
+                        <select id="departmentId" th:field="*{departmentId}" required>
+                            <option value="">-- Chọn khoa --</option>
+                            <option th:each="d : ${departments}"
+                                    th:value="${d.id}"
+                                    th:text="${d.name}"></option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="lecturerId">Giảng viên</label>
+                        <select id="lecturerId" th:field="*{lecturerId}" required>
+                            <option value="">-- Chọn giảng viên --</option>
+                            <option th:each="l : ${lecturers}"
+                                    th:value="${l.id}"
+                                    th:attr="data-dept=${l.department.id}"
+                                    th:text="${l.user.username + ' — ' + l.department.name + (l.specialization != null ? ' (' + l.specialization + ')' : '')}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="sessionDate">Ngày</label>
+                        <input type="date" id="sessionDate" th:field="*{sessionDate}"
+                               th:attr="min=${minDate}" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="startTime">Giờ bắt đầu</label>
+                        <input type="time" id="startTime" th:field="*{startTime}" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="endTime">Giờ kết thúc</label>
+                        <input type="time" id="endTime" th:field="*{endTime}" required>
+                        <small style="display:block;margin-top:6px;color:var(--text-muted);font-size:0.8rem">
+                            Tối thiểu 30 phút / buổi
+                        </small>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Đặt lịch</button>
+                    <a href="/student/history" class="btn btn-secondary">Xem lịch sử</a>
+                </div>
+            </form>
         </div>
 
-        <div class="input-group">
-
-            <label>Session Date</label>
-
-            <input type="date"
-                   th:field="*{sessionDate}">
-
-        </div>
-
-        <div class="input-group">
-
-            <label>Start Time</label>
-
-            <input type="time"
-                   th:field="*{startTime}">
-
-        </div>
-
-        <div class="input-group">
-
-            <label>End Time</label>
-
-            <input type="time"
-                   th:field="*{endTime}">
-
-        </div>
-
-        <button type="submit"
-                class="book-btn">
-
-            BOOK SESSION
-
-        </button>
-
-    </form>
-
-    <div class="student-link"
-         sec:authorize="hasRole('STUDENT')">
-
-        <a href="/student/book">
-            Student Booking Page
-        </a>
-
-    </div>
-
+    </main>
 </div>
 
+<script th:inline="javascript">
+    (function () {
+        const deptSelect = document.getElementById('departmentId');
+        const lecturerSelect = document.getElementById('lecturerId');
+        if (!deptSelect || !lecturerSelect) return;
+
+        const allOptions = Array.from(lecturerSelect.querySelectorAll('option[data-dept]'));
+
+        function filterLecturers() {
+            const deptId = deptSelect.value;
+            const current = lecturerSelect.value;
+
+            allOptions.forEach(opt => {
+                const match = !deptId || opt.getAttribute('data-dept') === deptId;
+                opt.hidden = !match;
+                opt.disabled = !match;
+            });
+
+            const placeholder = lecturerSelect.querySelector('option[value=""]');
+            if (placeholder) placeholder.hidden = false;
+
+            const selected = allOptions.find(o => o.value === current && !o.hidden);
+            lecturerSelect.value = selected ? current : '';
+        }
+
+        deptSelect.addEventListener('change', filterLecturers);
+        filterLecturers();
+    })();
+</script>
 </body>
 </html>

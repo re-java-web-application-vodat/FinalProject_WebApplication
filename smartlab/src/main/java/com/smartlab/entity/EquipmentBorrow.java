@@ -1,21 +1,20 @@
 package com.smartlab.entity;
 
-import com.smartlab.enums.SessionStatus;
+import com.smartlab.enums.BorrowStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Entity
-@Table(name = "mentoring_sessions")
+@Table(name = "equipment_borrows")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MentoringSession {
+public class EquipmentBorrow {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,19 +25,19 @@ public class MentoringSession {
     private User student;
 
     @ManyToOne
-    @JoinColumn(name = "lecturer_id")
-    private Lecturer lecturer;
+    @JoinColumn(name = "equipment_id")
+    private Equipment equipment;
 
-    @ManyToOne
-    @JoinColumn(name = "department_id")
-    private Department department;
+    private Integer quantity;
 
-    private LocalDate sessionDate;
-    private LocalTime startTime;
-    private LocalTime endTime;
+    private LocalDate borrowDate;
+
+    private LocalDate expectedReturnDate;
+
+    private LocalDate actualReturnDate;
 
     @Enumerated(EnumType.STRING)
-    private SessionStatus status;
+    private BorrowStatus status;
 
     private LocalDateTime createdAt;
 }

@@ -1,200 +1,37 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
-<head>
-    <title>Dashboard - SmartLab</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #0f172a, #1e293b, #2563eb);
-            color: white;
-            padding: 40px 20px 60px;
-        }
-
-        .background-circle {
-            position: fixed;
-            width: 420px;
-            height: 420px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-            filter: blur(100px);
-            z-index: 0;
-        }
-
-        .circle-1 { top: -120px; left: -120px; }
-        .circle-2 { bottom: -120px; right: -120px; }
-
-        .wrapper {
-            position: relative;
-            z-index: 1;
-            max-width: 960px;
-            margin: 0 auto;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-bottom: 36px;
-        }
-
-        .logo {
-            width: 56px;
-            height: 56px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #3b82f6, #60a5fa);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 16px;
-        }
-
-        .welcome h1 { font-size: 28px; margin-bottom: 6px; }
-        .welcome p { color: rgba(255, 255, 255, 0.75); font-size: 15px; }
-
-        .role-badge {
-            display: inline-block;
-            margin-top: 8px;
-            padding: 6px 14px;
-            border-radius: 999px;
-            background: rgba(59, 130, 246, 0.25);
-            border: 1px solid rgba(96, 165, 250, 0.4);
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .logout-form button {
-            padding: 12px 22px;
-            border: none;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.12);
-            color: white;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: 0.3s;
-        }
-
-        .logout-form button:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .section-title {
-            font-size: 18px;
-            margin-bottom: 18px;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            padding: 28px 24px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            text-decoration: none;
-            color: white;
-            transition: 0.3s;
-            display: block;
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-            background: rgba(255, 255, 255, 0.18);
-        }
-
-        .card h3 { font-size: 18px; margin-bottom: 10px; }
-        .card p { font-size: 14px; color: rgba(255, 255, 255, 0.7); line-height: 1.5; }
-
-        .notice {
-            margin-top: 24px;
-            padding: 18px 22px;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: rgba(255, 255, 255, 0.75);
-            font-size: 14px;
-        }
-
-        @media (max-width: 768px) {
-            .welcome h1 { font-size: 22px; }
-        }
-    </style>
-</head>
-
+<head th:replace="~{fragments/head :: head('Dashboard - SmartLab')}"></head>
 <body>
+<div th:replace="~{fragments/nav :: mesh}"></div>
+<div class="app-shell">
+<header th:replace="~{fragments/nav :: nav}"></header>
+<main class="main-content">
 
-<div class="background-circle circle-1"></div>
-<div class="background-circle circle-2"></div>
-
-<div class="wrapper">
-
-    <div class="header">
-        <div class="welcome">
-            <div class="logo">S</div>
-            <h1 th:text="'Xin chào, ' + ${username}">Xin chào</h1>
-            <p>Bảng điều khiển SmartLab</p>
-            <span class="role-badge" th:text="${role}">ROLE</span>
-        </div>
-        <form class="logout-form" th:action="@{/logout}" method="post">
-            <button type="submit">Đăng xuất</button>
-        </form>
-    </div>
-
-    <h2 class="section-title">Chức năng</h2>
-
-    <div class="cards" th:if="${role == 'STUDENT'}">
-        <a href="/student/book" class="card">
-            <h3>Đặt lịch mentoring</h3>
-            <p>Đặt buổi hướng dẫn học thuật với giảng viên.</p>
-        </a>
-        <a href="/profile" class="card">
-            <h3>Hồ sơ cá nhân</h3>
-            <p>Cập nhật thông tin và liên hệ của bạn.</p>
-        </a>
-    </div>
-
-    <div class="cards" th:if="${role == 'LECTURER'}">
-        <a href="/profile" class="card">
-            <h3>Hồ sơ cá nhân</h3>
-            <p>Xem và chỉnh sửa thông tin giảng viên.</p>
-        </a>
-    </div>
-
-    <div class="cards" th:if="${role == 'ADMIN'}">
-        <a href="/admin/equipments" class="card">
-            <h3>Quản lý thiết bị</h3>
-            <p>Thêm, sửa và xóa thiết bị phòng lab.</p>
-        </a>
-        <a href="/profile" class="card">
-            <h3>Hồ sơ cá nhân</h3>
-            <p>Quản lý thông tin tài khoản admin.</p>
-        </a>
-    </div>
-
-    <p class="notice" th:if="${role == 'LECTURER'}">
-        Các chức năng quản lý lịch dạy cho giảng viên sẽ được bổ sung trong phiên bản tiếp theo.
-    </p>
-
+<div class="welcome-banner">
+<X>
+<h1 th:text="'Xin chào, ' + ${username}">Xin chào</h1>
+<p style="color:var(--text-muted);margin-top:4px">Bảng điều khiển SmartLab</p>
+<span class="role-badge" th:text="${role}">ROLE</span>
+</div>
+</div>
+<p style="font-size:.75rem;color:var(--text-muted);margin-bottom:16px;font-weight:600;letter-spacing:.08em">CHỨC NĂNG</p>
+<div class="feature-grid" th:if="${role == 'STUDENT'}">
+<a href="/student/book" class="feature-card"><div class="feature-icon">📅</div><h3>Đặt lịch mentoring</h3><p>Đặt buổi hướng dẫn với giảng viên.</p></a>
+<a href="/student/history" class="feature-card"><div class="feature-icon">📋</div><h3>Lịch sử</h3><p>Xem mentoring và phiếu mượn.</p></a>
+<a href="/student/borrow" class="feature-card"><div class="feature-icon">🔧</div><h3>Mượn thiết bị</h3><p>Gửi yêu cầu mượn thiết bị.</p></a>
+<a href="/profile" class="feature-card"><div class="feature-icon">👤</div><h3>Hồ sơ</h3><p>Cập nhật thông tin cá nhân.</p></a>
+</div>
+<div class="feature-grid" th:if="${role == 'LECTURER'}">
+<a href="/lecturer/sessions" class="feature-card"><div class="feature-icon">🎓</div><h3>Lịch mentoring</h3><p>Quản lý buổi hướng dẫn.</p></a>
+<a href="/profile" class="feature-card"><div class="feature-icon">👤</div><h3>Hồ sơ</h3><p>Thông tin giảng viên.</p></a>
+</div>
+<div class="feature-grid" th:if="${role == 'ADMIN'}">
+<a href="/admin/equipments" class="feature-card"><div class="feature-icon">📦</div><h3>Thiết bị</h3><p>Quản lý kho thiết bị.</p></a>
+<a href="/admin/borrows" class="feature-card"><div class="feature-icon">📝</div><h3>Phiếu mượn</h3><p>Duyệt mượn trả.</p></a>
+<a href="/profile" class="feature-card"><div class="feature-icon">👤</div><h3>Hồ sơ</h3><p>Tài khoản admin.</p></a>
 </div>
 
+</main>
+</div>
 </body>
 </html>

@@ -15,48 +15,38 @@ public class EquipmentController {
     private final EquipmentService service;
 
     @GetMapping
-    public String list(Model model){model.addAttribute("equipments", service.getAll());
-
+    public String list(Model model) {
+        model.addAttribute("equipments", service.getAll());
         return "admin/equipment/list";
     }
 
     @GetMapping("/create")
-    public String createPage(Model model){
-
+    public String createPage(Model model) {
         model.addAttribute("equipment", new Equipment());
-
         return "admin/equipment/create";
     }
 
     @PostMapping("/create")
-    public String create(@ModelAttribute Equipment equipment){
-
+    public String create(@ModelAttribute Equipment equipment) {
         service.create(equipment);
-
         return "redirect:/admin/equipments";
     }
 
     @GetMapping("/edit/{id}")
-    public String editPage(@PathVariable Long id, Model model){
-
+    public String editPage(@PathVariable Long id, Model model) {
         model.addAttribute("equipment", service.findById(id));
-
         return "admin/equipment/edit";
     }
 
     @PostMapping("/edit")
-    public String edit(@ModelAttribute Equipment equipment){
-
+    public String edit(@ModelAttribute Equipment equipment) {
         service.update(equipment);
-
         return "redirect:/admin/equipments";
     }
 
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Long id){
-
+    public String delete(@PathVariable Long id) {
         service.delete(id);
-
         return "redirect:/admin/equipments";
     }
 }

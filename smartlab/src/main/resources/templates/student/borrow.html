@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Mượn thiết bị - SmartLab')}"></head>
+<body>
+<div th:replace="~{fragments/nav :: mesh}"></div>
+<div class="app-shell">
+<header th:replace="~{fragments/nav :: nav}"></header>
+<main class="main-content">
+
+<div class="page-header"><h1>Mượn thiết bị</h1><p>Gửi yêu cầu mượn thiết bị phòng lab</p></div>
+<div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+<div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+<div class="card"><form th:action="@{/student/borrow}" th:object="${borrowDTO}" method="post">
+<div class="form-grid">
+<div class="input-group"><label>Thiết bị</label>
+<select th:field="*{equipmentId}" required>
+<option value="">-- Chọn thiết bị --</option>
+<option th:each="e : ${equipments}" th:value="${e.id}" th:text="${e.name + ' (còn ' + e.availableQuantity + ')'}"></option>
+</select></div>
+<div class="input-group"><label>Số lượng</label><input type="number" th:field="*{quantity}" min="1" required></div>
+<div class="input-group"><label>Ngày trả dự kiến</label><input type="date" th:field="*{expectedReturnDate}" required></div>
+</div>
+<button type="submit" class="btn btn-primary">Gửi yêu cầu</button>
+</form></div>
+
+</main>
+</div>
+</body>
+</html>

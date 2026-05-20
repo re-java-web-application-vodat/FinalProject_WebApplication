@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Thiết bị - SmartLab')}"></head>
+<body>
+<div th:replace="~{fragments/nav :: mesh}"></div>
+<div class="app-shell">
+<header th:replace="~{fragments/nav :: nav}"></header>
+<main class="main-content">
+
+<div class="page-header page-header-row">
+<X><h1>Quản lý thiết bị</h1><p>Danh sách thiết bị phòng lab</p></div>
+<a href="/admin/equipments/create" class="btn btn-primary">+ Thêm thiết bị</a>
+</div>
+<div class="card"><div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Tên</th><th>Tổng</th><th>Còn</th><th>Thao tác</th></tr></thead>
+<tbody>
+<tr th:each="e : ${equipments}">
+<td th:text="${e.id}"></td><td th:text="${e.name}"></td>
+<td th:text="${e.quantity}"></td><td th:text="${e.availableQuantity}"></td>
+<td class="actions">
+<a th:href="@{/admin/equipments/edit/{id}(id=${e.id})}" class="btn btn-secondary btn-sm">Sửa</a>
+<a th:href="@{/admin/equipments/delete/{id}(id=${e.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Xóa thiết bị?')">Xóa</a>
+</td></tr>
+</tbody></table></div></div>
+
+</main>
+</div>
+</body>
+</html>

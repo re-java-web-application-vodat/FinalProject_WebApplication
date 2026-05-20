@@ -1,79 +1,123 @@
 package com.smartlab.service;
 
 import com.smartlab.dto.BookingDTO;
-
 import com.smartlab.entity.Department;
 import com.smartlab.entity.Lecturer;
 import com.smartlab.entity.MentoringSession;
 import com.smartlab.entity.User;
-
 import com.smartlab.enums.SessionStatus;
-
 import com.smartlab.repository.DepartmentRepository;
 import com.smartlab.repository.LecturerRepository;
 import com.smartlab.repository.MentoringSessionRepository;
 import com.smartlab.repository.UserRepository;
-
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class BookingService {
 
-    private final MentoringSessionRepository repository;
+    private static final int MIN_DURATION_MINUTES = 30;
 
+    private final MentoringSessionRepository sessionRepository;
     private final UserRepository userRepository;
-
     private final LecturerRepository lecturerRepository;
-
     private final DepartmentRepository departmentRepository;
 
-    public void book(BookingDTO dto, String username){
+    public List<Department> getDepartments() {
+        return departmentRepository.findAll();
+    }
 
-        LocalDateTime bookingTime = LocalDateTime.of(dto.getSessionDate(), dto.getStartTime());
+    public List<Lecturer> getLecturers() {
+        return lecturerRepository.findAllWithDetails();
+    }
 
-        // CHẶN ĐẶT QUÁ KHỨ
-        if(bookingTime.isBefore(LocalDateTime.now())){
-            throw new RuntimeException("Không thể đặt chỗ sau giờ quy định.");
+    @Transactional
+    public void book(BookingDTO dto, String username) {
+        validateInput(dto);
+
+        User student = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản sinh viên."));
+
+        Lecturer lecturer = lecturerRepository.findById(dto.getLecturerId())
+                .orElseThrow(() -> new IllegalArgumentException("Giảng viên không tồn tại."));
+
+        Department department = departmentRepository.findById(dto.getDepartmentId())
+                .orElseThrow(() -> new IllegalArgumentException("Khoa không tồn tại."));
+
+        if (!lecturer.getDepartment().getId().equals(department.getId())) {
+            throw new IllegalArgumentException("Giảng viên không thuộc khoa đã chọn.");
         }
 
-        // CHỐNG XUNG ĐỘT
-        boolean exists = repository.existsByLecturerIdAndSessionDateAndStartTimeAndStatusNot(dto.getLecturerId(), dto.getSessionDate(), dto.getStartTime(), SessionStatus.CANCELLED);
+        LocalDate sessionDate = dto.getSessionDate();
+        LocalTime startTime = dto.getStartTime();
+        LocalTime endTime = dto.getEndTime();
 
-        if(exists){
-            throw new RuntimeException("Giáo viên đã có lịch hẹn!");
+        validateTimeRange(sessionDate, startTime, endTime);
+
+        if (sessionRepository.existsOverlappingLecturerSession(
+                lecturer.getId(), sessionDate, startTime, endTime, SessionStatus.CANCELLED)) {
+            throw new IllegalArgumentException("Giảng viên đã có lịch trùng khung giờ này.");
         }
 
-        User student = userRepository.findByUsername(username).orElseThrow();
-
-        Lecturer lecturer = lecturerRepository.findById(dto.getLecturerId()).orElseThrow();
-
-        Department department = departmentRepository.findById(dto.getDepartmentId()).orElseThrow();
+        if (sessionRepository.existsOverlappingStudentSession(
+                student.getId(), sessionDate, startTime, endTime, SessionStatus.CANCELLED)) {
+            throw new IllegalArgumentException("Bạn đã có buổi mentoring trùng khung giờ này.");
+        }
 
         MentoringSession session = MentoringSession.builder()
+                .student(student)
+                .lecturer(lecturer)
+                .department(department)
+                .sessionDate(sessionDate)
+                .startTime(startTime)
+                .endTime(endTime)
+                .status(SessionStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .build();
 
-                        .student(student)
+        sessionRepository.save(session);
+    }
 
-                        .lecturer(lecturer)
+    private void validateInput(BookingDTO dto) {
+        if (dto.getDepartmentId() == null) {
+            throw new IllegalArgumentException("Vui lòng chọn khoa.");
+        }
+        if (dto.getLecturerId() == null) {
+            throw new IllegalArgumentException("Vui lòng chọn giảng viên.");
+        }
+        if (dto.getSessionDate() == null) {
+            throw new IllegalArgumentException("Vui lòng chọn ngày.");
+        }
+        if (dto.getStartTime() == null || dto.getEndTime() == null) {
+            throw new IllegalArgumentException("Vui lòng chọn giờ bắt đầu và kết thúc.");
+        }
+    }
 
-                        .department(department)
+    private void validateTimeRange(LocalDate sessionDate, LocalTime startTime, LocalTime endTime) {
+        if (!endTime.isAfter(startTime)) {
+            throw new IllegalArgumentException("Giờ kết thúc phải sau giờ bắt đầu.");
+        }
 
-                        .sessionDate(dto.getSessionDate())
+        long durationMinutes = java.time.Duration.between(startTime, endTime).toMinutes();
+        if (durationMinutes < MIN_DURATION_MINUTES) {
+            throw new IllegalArgumentException("Buổi mentoring tối thiểu " + MIN_DURATION_MINUTES + " phút.");
+        }
 
-                        .startTime(dto.getStartTime())
+        LocalDateTime startDateTime = LocalDateTime.of(sessionDate, startTime);
+        if (startDateTime.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Không thể đặt lịch trong quá khứ.");
+        }
 
-                        .endTime(dto.getEndTime())
-
-                        .status(SessionStatus.PENDING)
-
-                        .createdAt(LocalDateTime.now())
-
-                        .build();
-
-        repository.save(session);
+        LocalDateTime endDateTime = LocalDateTime.of(sessionDate, endTime);
+        if (endDateTime.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Khung giờ kết thúc đã qua, vui lòng chọn giờ khác.");
+        }
     }
 }
